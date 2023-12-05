@@ -27,8 +27,11 @@ La estructura del proyecto es la siguiente:
 El `Dockerfile` utiliza la imagen base de Nginx y copia los archivos estáticos del portafolio al contenedor:
 
 ```dockerfile
-FROM nginx:latest
+FROM nginx:alpine
 COPY . /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
 ```
 
 ## GitHub Workflow para CI/CD
