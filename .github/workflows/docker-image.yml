@@ -13,10 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # Define el tag de la imagen
+    # Define el tag de la imagen utilizando el SHA del commit
     - name: Set Image Tag
       id: imagetag
-      run: echo "::set-output name=tag::$(date +%s)"
+      run: echo "::set-output name=tag::${GITHUB_SHA::7}"
 
     # Build the Docker image
     - name: Build the Docker image
