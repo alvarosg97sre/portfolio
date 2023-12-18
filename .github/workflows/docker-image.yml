@@ -11,24 +11,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    # Define el tag de la imagen utilizando el SHA del commit
-    - name: Set Image Tag
-      id: imagetag
-      run: echo "::set-output name=tag::${GITHUB_SHA::7}"
+      # Define el tag de la imagen utilizando el SHA del commit
+      - name: Set Image Tag
+        id: imagetag
+        run: echo "::set-output name=tag::${GITHUB_SHA::7}"
 
-    # Build the Docker image
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
+      # Build the Docker image
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
 
-    # Login to Docker Hub
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-    # Push the image to Docker Hub
-    - name: Push the image
-      run: docker push alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
+      # Push the image to Docker Hub
+      - name: Push the image
+        run: docker push alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
+
+  deploy-to-cluster:
+    name: Deploy to Cluster
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to Cluster
+        uses: steebchen/kubectl@v2.0.0
+        with:
+          config: ${{ secrets.KUBE_CONFIG_DATA }}
+          command: -n prueba set image --record deployment/mi-portfolio mi-portfolio=pablokbs/portfolio:${{ steps.imagetag.outputs.tag }}
+
+      - name: Verify Deployment
+        uses: steebchen/kubectl@v2.0.0
+        with:
+          config: ${{ secrets.KUBE_CONFIG_DATA }}
+          command: -n prueba rollout status deployment/mi-portfolio
