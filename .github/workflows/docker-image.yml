@@ -42,7 +42,7 @@ jobs:
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBE_CONFIG_DATA }}
-          command: -n default set image --record deployment/mi-portfolio portfolio-container=alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
+          command: -n default set image --record deployment/mi-portfolio portfolio=alvarosg97/portfolio:${{ steps.imagetag.outputs.tag }}
 
       - name: Verify Deployment
         uses: steebchen/kubectl@v2.0.0
